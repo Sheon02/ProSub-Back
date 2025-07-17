@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "description": "E-commerce platform for premium account subscriptions",
   "type": "module",
-  "main": "server/server.js",
+  "main": "server.js",
   "scripts": {
+    "vercel-build": "npm install",
     "start": "NODE_ENV=production node server/server.js",
     "server": "NODE_ENV=development nodemon server/server.js",
     "client": "npm run dev --prefix client",
@@ -23,6 +24,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
     "express": "^4.21.2",
+    "@vercel/node": "^3.0.0",
     "express-async-handler": "^1.2.0",
     "express-mongo-sanitize": "^2.2.0",
     "express-rate-limit": "^6.7.0",
