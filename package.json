@@ -6,8 +6,8 @@
   "main": "server.js",
   "scripts": {
     "vercel-build": "npm install",
-    "start": "NODE_ENV=production node server/server.js",
-    "server": "NODE_ENV=development nodemon server/server.js",
+    "start": "node server.js",
+    "server": " nodemon server.js",
     "client": "npm run dev --prefix client",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "build": "npm install && npm run build --prefix client",
