@@ -1,14 +1,12 @@
-import app from './server.js';
-import { createServer } from 'http';
+import app from './server'; 
 import mongoose from 'mongoose';
 
-// Database connection cache
+// Database connection management
 let isConnected = false;
 
-export default async (req, res) => {
-  try {
-    // Database connection management
-    if (!isConnected) {
+const connectDB = async () => {
+  if (!isConnected) {
+    try {
       await mongoose.connect(process.env.MONGODB_URI, {
         serverSelectionTimeoutMS: 5000,
         socketTimeoutMS: 45000,
@@ -16,9 +14,19 @@ export default async (req, res) => {
       });
       isConnected = true;
       console.log('Database connection established'.green.bold);
+    } catch (error) {
+      console.error('Database connection failed:'.red.bold, error);
+      throw error;
     }
+  }
+};
 
-    // Enhanced security headers
+export default async (req, res) => {
+  try {
+    // Connect to database
+    await connectDB();
+
+    // Set security headers
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('X-Frame-Options', 'DENY');
     res.setHeader('X-XSS-Protection', '1; mode=block');
@@ -37,23 +45,16 @@ export default async (req, res) => {
       return res.status(204).end();
     }
 
-    // Create server instance
-    const server = createServer(app);
+    // Forward the request to your Express app
+    return app(req, res);
     
-    // Error handling
-    server.on('error', (error) => {
-      console.error('Server error:'.red.bold, error);
-      if (!res.headersSent) {
-        res.status(500).json({ error: 'Internal server error' });
-      }
-    });
-
-    // Start server
-    return server.listen(req, res);
   } catch (error) {
-    console.error('Initialization error:'.red.bold, error);
+    console.error('Server error:'.red.bold, error);
     if (!res.headersSent) {
-      res.status(503).json({ error: 'Service unavailable' });
+      return res.status(500).json({ 
+        error: 'Internal server error',
+        message: error.message 
+      });
     }
   }
 };
