@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import cors from 'cors';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 import connectDB from './config/db.js';
 
@@ -16,22 +17,29 @@ connectDB();
 
 const app = express();
 
+// CORS Configuration
+const corsOptions = {
+  origin: [
+    'https://pro-sub-front.vercel.app', // Production frontend
+    'http://localhost:3000',            // Local development
+  ],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: [
+    'Origin', 
+    'X-Requested-With', 
+    'Content-Type', 
+    'Accept', 
+    'Authorization',
+    'x-auth-token'
+  ],
+  credentials: true, // Enable cookies/sessions if needed
+  optionsSuccessStatus: 200 // Some legacy browsers choke on 204
+};
+
+app.use(cors(corsOptions));
+
 // Middleware
 app.use(express.json());
-
-// CORS (adjust origin in production)
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header(
-    'Access-Control-Allow-Headers',
-    'Origin, X-Requested-With, Content-Type, Accept, Authorization'
-  );
-  if (req.method === 'OPTIONS') {
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE');
-    return res.status(200).json({});
-  }
-  next();
-});
 
 // Routes
 import productRoutes from './routes/productRoutes.js';
@@ -48,10 +56,10 @@ app.use('/api/payment', paymentRoutes);
 
 // PayPal config route
 app.get('/api/config/paypal', (req, res) => {
-  res.send(process.env.PAYPAL_CLIENT_ID || 'sb'); // 'sb' for sandbox
+  res.send(process.env.PAYPAL_CLIENT_ID || 'sb');
 });
 
-// Health check endpoint (for Vercel monitoring)
+// Health check endpoint
 app.get('/api/health', (req, res) => {
   res.status(200).json({ status: 'ok' });
 });
@@ -60,5 +68,4 @@ app.get('/api/health', (req, res) => {
 app.use(notFound);
 app.use(errorHandler);
 
-// Export the app for Vercel (do NOT call app.listen())
 export default app;
