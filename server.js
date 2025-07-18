@@ -20,7 +20,7 @@ const app = express();
 // CORS Configuration
 const corsOptions = {
   origin: [
-    'https://pro-sub-front.vercel.app', // Production frontend
+    'https://premium-subscriptions.vercel.app/', // Production frontend
     'http://localhost:3000',            // Local development
   ],
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
